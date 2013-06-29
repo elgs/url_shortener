@@ -8,22 +8,22 @@ var dataLongKey = null;
 var dataFile = 'url_data.json';
 var tmpFile = 'url_data.tmp';
 
-var init = function(){
+var init = function () {
     var obj = load();
     index = obj.index;
     dataShortKey = obj.data;
     persist();
-    dataLongKey = invert(dataShortKey);    
+    dataLongKey = invert(dataShortKey);
 };
 
 var load = function () {
-    if(fs.existsSync(dataFile)){
+    if (fs.existsSync(dataFile)) {
         var dataString = fs.readFileSync(dataFile, 'utf8');
         return JSON.parse(dataString);
-    }else{
+    } else {
         return {
-            index : -1,
-            data  : {}
+            index: -1,
+            data: {}
         };
     }
 };
@@ -36,28 +36,28 @@ var find = function (shortUrl) {
     return longUrl;
 }
 
-var all = function(){
+var all = function () {
     return {
-        index:index,
-        data:dataShortKey
+        index: index,
+        data: dataShortKey
     };
 };
 
 var persist = function () {
     var obj = all();
     var tmpFileExists = fs.existsSync(tmpFile);
-    if(tmpFileExists){
+    if (tmpFileExists) {
         var tmpData = fs.readFileSync(tmpFile, 'utf8').trim();
         var lines = tmpData.split('\n');
         var shortUrl = null;
-        for (var i in lines){
+        for (var i in lines) {
             var line = lines[i];
             var _position = line.indexOf('_');
             shortUrl = line.substring(0, _position);
-            var longUrl = line.substring(_position+1);
-            obj.data[shortUrl] = longUrl;        
+            var longUrl = line.substring(_position + 1);
+            obj.data[shortUrl] = longUrl;
         }
-        if(shortUrl){
+        if (shortUrl) {
             obj.index = chars.getIndex(shortUrl);
         }
         index = obj.index;
@@ -65,7 +65,7 @@ var persist = function () {
     }
     var dataString = JSON.stringify(obj);
     fs.writeFileSync(dataFile, dataString);
-    if(tmpFileExists){
+    if (tmpFileExists) {
         fs.unlink(tmpFile, function (err) {
             if (err) throw err;
         });
@@ -73,8 +73,8 @@ var persist = function () {
 };
 
 // apend to the end of a file
-var save_tmp = function(shortUrl, longUrl){
-    var tmpData = shortUrl+'_'+longUrl+'\n';
+var save_tmp = function (shortUrl, longUrl) {
+    var tmpData = shortUrl + '_' + longUrl + '\n';
     fs.appendFile(tmpFile, tmpData, function (err) {
         if (err) throw err;
     });
