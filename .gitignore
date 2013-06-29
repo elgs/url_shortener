@@ -1,4 +1,4 @@
 .DS_Store
 node_modules/
-url_data.json
+url_data.*
 views/
