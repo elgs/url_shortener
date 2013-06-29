@@ -12,6 +12,8 @@ process.on('exit', function() {
     var obj = services.persist();
 });
 
+app.use('/', express.static('views'));
+
 app.get('/_shorten', function(req, res){
     var longUrl = req.query.url;
     
@@ -33,7 +35,7 @@ app.get('/_shorten', function(req, res){
 });
 
 app.get('/_all', function(req, res){
-    res.json(services.load());
+    res.json(services.all());
 });
 
 app.all('/:shortUrl', function(req, res){

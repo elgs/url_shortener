@@ -5,58 +5,27 @@ var index = null;
 var dataShortKey = null;
 var dataLongKey = null;
 
-var init = function () {
-    var obj = null;
-    var dataFile = 'url_data.json';
-    if(!fs.existsSync(dataFile)){
-        obj = {
-            index : -1,
-            data  : {}
-        };
-    }else{
-        var dataString = fs.readFileSync(dataFile, 'utf8');
-        if(dataString.trim().length===0){
-            obj = {
-                index : -1,
-                data  : {}
-            };
-        }else{
-            obj = JSON.parse(dataString);
-        }
-    }
+var dataFile = 'url_data.json';
+var tmpFile = 'url_data.tmp';
+
+var init = function(){
+    var obj = load();
     index = obj.index;
     dataShortKey = obj.data;
-    dataLongKey = invert(dataShortKey);
-};
-
-var persist = function () {
-    var dataFile = 'url_data.json';
-    var obj = {
-        index:index,
-        data:dataShortKey
-    };
-    var dataString = JSON.stringify(obj);
-    fs.writeFile(dataFile, dataString, function(err){
-        if(err) throw err;
-    });
+    persist();
+    dataLongKey = invert(dataShortKey);    
 };
 
 var load = function () {
-    return {
-        index: index,
-        data: dataShortKey
-    };
-};
-
-var shorten = function (longUrl) {
-    var shortUrl = dataLongKey[longUrl];
-    if (!shortUrl) {
-        shortUrl = chars.getChars(++index);
-        dataShortKey[shortUrl] = longUrl;
-        dataLongKey[longUrl] = shortUrl;
-        persist();
+    if(fs.existsSync(dataFile)){
+        var dataString = fs.readFileSync(dataFile, 'utf8');
+        return JSON.parse(dataString);
+    }else{
+        return {
+            index : -1,
+            data  : {}
+        };
     }
-    return shortUrl;
 };
 
 var find = function (shortUrl) {
@@ -67,6 +36,61 @@ var find = function (shortUrl) {
     return longUrl;
 }
 
+var all = function(){
+    return {
+        index:index,
+        data:dataShortKey
+    };
+};
+
+var persist = function () {
+    var obj = all();
+    var tmpFileExists = fs.existsSync(tmpFile);
+    if(tmpFileExists){
+        var tmpData = fs.readFileSync(tmpFile, 'utf8').trim();
+        var lines = tmpData.split('\n');
+        var shortUrl = null;
+        for (var i in lines){
+            var line = lines[i];
+            var _position = line.indexOf('_');
+            shortUrl = line.substring(0, _position);
+            var longUrl = line.substring(_position+1);
+            obj.data[shortUrl] = longUrl;        
+        }
+        if(shortUrl){
+            obj.index = chars.getIndex(shortUrl);
+        }
+        index = obj.index;
+        dataShortKey = obj.data;
+    }
+    var dataString = JSON.stringify(obj);
+    fs.writeFileSync(dataFile, dataString);
+    if(tmpFileExists){
+        fs.unlink(tmpFile, function (err) {
+            if (err) throw err;
+        });
+    }
+};
+
+// apend to the end of a file
+var save_tmp = function(shortUrl, longUrl){
+    var tmpData = shortUrl+'_'+longUrl+'\n';
+    fs.appendFile(tmpFile, tmpData, function (err) {
+        if (err) throw err;
+    });
+};
+
+var shorten = function (longUrl) {
+    var shortUrl = dataLongKey[longUrl];
+    if (!shortUrl) {
+        shortUrl = chars.getChars(++index);
+        dataShortKey[shortUrl] = longUrl;
+        dataLongKey[longUrl] = shortUrl;
+        save_tmp(shortUrl, longUrl);
+    }
+    return shortUrl;
+};
+
 var invert = function (o) {
     var ret = {};
     for (var i in o) {
@@ -75,6 +99,7 @@ var invert = function (o) {
     return ret;
 }
 
+exports.all = all;
 exports.shorten = shorten;
 exports.find = find;
 exports.load = load;

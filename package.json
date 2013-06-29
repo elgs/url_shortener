@@ -9,14 +9,14 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [
+  },
+  "keywords": [
     "url",
     "shortener"
-    ],
-    "author": "Elgs Chen",
-    "license": "BSD",
-    "dependencies": {
-      "express": "*"
-    }
+  ],
+  "author": "Elgs Chen",
+  "license": "BSD",
+  "dependencies": {
+    "express": "*"
   }
+}
