@@ -40,9 +40,15 @@ app.get('/_all', function (req, res) {
 
 app.all('/:shortUrl', function (req, res) {
     var shortUrl = req.params.shortUrl;
+    if(shortUrl.trim().length === 0){
+        res.end();
+        return;
+    }
     var longUrl = services.find(shortUrl);
     if (longUrl) {
         res.redirect(longUrl);
+    }else{
+        res.end();
     }
 });
 
