@@ -46,7 +46,7 @@ app.all('/:shortUrl', function (req, res) {
     }
     var longUrl = services.find(shortUrl);
     if (longUrl) {
-        res.redirect(longUrl);
+        res.redirect(301, longUrl);
     }else{
         res.end();
     }
