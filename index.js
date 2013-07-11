@@ -28,6 +28,13 @@ app.get('/_shorten', function (req, res) {
         longUrl = 'http://' + longUrl;
     }
     var shortUrl = services.shorten(longUrl);
+    if (!shortUrl) {
+        res.json({
+            longUrl: longUrl,
+            error: 'Hacking!!!'
+        });
+        return;
+    }
     res.json({
         shortUrl: shortUrl,
         longUrl: longUrl
@@ -40,14 +47,18 @@ app.get('/_all', function (req, res) {
 
 app.all('/:shortUrl', function (req, res) {
     var shortUrl = req.params.shortUrl;
-    if(shortUrl.trim().length === 0){
+    if (shortUrl.trim().length === 0) {
         res.end();
         return;
     }
     var longUrl = services.find(shortUrl);
+    if (longUrl === shortUrl) {
+        res.end();
+        return;
+    }
     if (longUrl) {
         res.redirect(301, longUrl);
-    }else{
+    } else {
         res.end();
     }
 });

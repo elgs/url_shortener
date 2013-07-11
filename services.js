@@ -84,6 +84,10 @@ var shorten = function (longUrl) {
     var shortUrl = dataLongKey[longUrl];
     if (!shortUrl) {
         shortUrl = chars.getChars(++index);
+        if(shortUrl === longUrl){
+            --index;
+            return null;
+        }   
         dataShortKey[shortUrl] = longUrl;
         dataLongKey[longUrl] = shortUrl;
         save_tmp(shortUrl, longUrl);
