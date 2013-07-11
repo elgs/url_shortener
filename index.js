@@ -16,6 +16,7 @@ app.use('/', express.static('views'));
 
 app.get('/_shorten', function (req, res) {
     var longUrl = req.query.url;
+    var shortUrlPrefix = req.protocol + "://" + req.get('host');
 
     if (longUrl.indexOf('.') < 0) {
         res.json({
@@ -27,7 +28,7 @@ app.get('/_shorten', function (req, res) {
     if (longUrl.trim().indexOf('http') != 0) {
         longUrl = 'http://' + longUrl;
     }
-    var shortUrl = services.shorten(longUrl);
+    var shortUrl = services.shorten(longUrl, shortUrlPrefix);
     if (!shortUrl) {
         res.json({
             longUrl: longUrl,
@@ -47,13 +48,15 @@ app.get('/_all', function (req, res) {
 
 app.all('/:shortUrl', function (req, res) {
     var shortUrl = req.params.shortUrl;
+    var shortUrlPrefix = req.protocol + "://" + req.get('host');
+
     if (shortUrl.trim().length === 0) {
         res.end();
         return;
     }
     var longUrl = services.find(shortUrl);
-    if (longUrl === shortUrl) {
-        res.end();
+    if (longUrl === shortUrlPrefix + '/' + shortUrl) {
+        res.redirect(301, shortUrlPrefix);
         return;
     }
     if (longUrl) {

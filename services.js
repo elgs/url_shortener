@@ -80,14 +80,14 @@ var save_tmp = function (shortUrl, longUrl) {
     });
 };
 
-var shorten = function (longUrl) {
+var shorten = function (longUrl, shortUrlPrefix) {
     var shortUrl = dataLongKey[longUrl];
     if (!shortUrl) {
         shortUrl = chars.getChars(++index);
-        if(shortUrl === longUrl){
+        if (shortUrlPrefix + '/' + shortUrl === longUrl) {
             --index;
             return null;
-        }   
+        }
         dataShortKey[shortUrl] = longUrl;
         dataLongKey[longUrl] = shortUrl;
         save_tmp(shortUrl, longUrl);
